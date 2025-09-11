@@ -44,6 +44,7 @@ Example output:
 ```
 Misclassified Test Samples: 3 / 45
 ```
+---
 
 ## Dependencies
  - Python 3.8+
