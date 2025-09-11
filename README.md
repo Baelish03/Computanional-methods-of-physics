@@ -25,5 +25,37 @@ The code uses the **Iris dataset** from `sklearn.datasets`, restricted to **peta
 ## Usage
 Clone the repository and run:
 
-```bash
-python main.py
+```
+python3 main.py
+```
+
+You will be prompted to select a classifier:
+```
+1. Perceptron
+2. Adaline
+3. Logistic Regression
+4. Support Vector Machine (linear kernel)
+5. Support Vector Machine (gaussian kernel)
+6. Neural Network
+Select a classifier:
+```
+
+Example output:
+```
+Misclassified Test Samples: 3 / 45
+```
+
+## Dependencies
+ - Python 3.8+
+ - numpy
+ - pandas
+ - matplotlib
+ - scikit-learn (for dataset only)
+ - cvxopt (for quadratic programming in SVM)
+
+Install them with:
+```
+pip3 install numpy pandas matplotlib scikit-learn cvxopt
+```
+
+
