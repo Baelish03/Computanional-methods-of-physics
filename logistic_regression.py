@@ -1,12 +1,13 @@
 import numpy as np
 from one_vs_all import OneVsAll
 
-class Adaline(OneVsAll):
+class LogisticRegression(OneVsAll):
     """
-    Implementation of the Adaline (Adaptive Linear Neuron) algorithm.
+    Implementation of Logistic Regression classifier.
 
-    Supports binary classification and one-vs-all strategy for multi-class
-    classification. Provides training, prediction, and scoring utilities.
+    Inherits from OneVsAll to support multi-class classification. 
+    Uses gradient descent to optimize the log-likelihood function. 
+    Provides training, prediction, and scoring utilities.
 
     Attributes
     ----------
@@ -30,66 +31,64 @@ class Adaline(OneVsAll):
         Temporary predictions during training.
     gradient_vec : np.ndarray
         Gradient vector used for weight updates.
+    p_vec : np.ndarray
+        Vector of probabilities (sigmoid outputs).
     classifier_name : str
-        Identifier for the classifier ("Adaline").
-    indexes : list[int]
-        Class indices used in one-vs-all classification.
-    predictions : list
-        Predictions from each class in one-vs-all classification.
+        Identifier for the classifier ("Logistic regression").
     """
     def __init__(self, features_matrix, labels_vector,
-                 trained_weight_matrix, scores,
+                 trained_weights_matrix, scores,
                  learning_rate, epochs, length):
-        """Initialize the Adaline classifier with dataset and hyperparameters."""
+        """Initialize the Logistic Regression classifier with dataset and hyperparameters."""
         self.features_matrix = features_matrix
         self.samples_len = features_matrix.shape[0]
         features_len = features_matrix.shape[1]
-        self.weights_vec = np.zeros(shape=features_len + 1)
+        self.weights_vec = np.zeros(features_len + 1)
         self.dummylabel_vec = np.zeros(shape=self.samples_len)
         self.labels_vector = labels_vector
         self.gradient_vec = np.zeros(shape=features_len)
-        self.trained_weights_matrix = trained_weight_matrix
+        self.p_vec = np.zeros(shape=self.samples_len)
         self.trained_scores = scores
+        self.trained_weights_matrix = trained_weights_matrix
         self.learning_rate = learning_rate
         self.epochs = epochs
         self.length = length
-        self.classifier_name = "Adaline"
-        self.indexes, self.predictions = [], [None] * length
+        self.classifier_name = "Logistic regression"
 
-    def activation_func(self, features_vec):
+    def sigmoid(self, test_vec, weights_vec):
         """
-        Compute activation function.
+        Compute the sigmoid function.
 
         Parameters
         ----------
-        features_vec : np.ndarray
+        test_vec : np.ndarray
             Input feature vector.
-
-        Returns
-        -------
-        int
-            Predicted label (1 if linear combination >= 0, else 0).
-        """
-        weights_vec = self.weights_vec
-        return np.where(np.dot(weights_vec[1:], features_vec) + weights_vec[0] >= 0, 1, 0)
-
-    def error_func (self, dummylabel, label):
-        """
-        Compute squared error.
-
-        Parameters
-        ----------
-        dummylabel : float
-            Predicted value.
-        label : float
-            True label.
+        weights_vec : np.ndarray
+            Current weight vector.
 
         Returns
         -------
         float
-            Squared error.
+            Probability value in (0, 1).
         """
-        return (label - dummylabel) ** 2
+        z = np.dot(test_vec, weights_vec[1:]) + weights_vec[0]
+        return 1 / (1 + np.e ** (-z))
+
+    def activation_func(self, p):
+        """
+        Apply threshold to sigmoid probability.
+
+        Parameters
+        ----------
+        p : float
+            Probability value in (0, 1).
+
+        Returns
+        -------
+        int
+            Predicted label (1 if p > 0.5, else 0).
+        """
+        return np.where(p > 0.5, 1, 0)
 
     def gradient(self, features_vec, dummylabel, label):
         """
@@ -99,9 +98,9 @@ class Adaline(OneVsAll):
         ----------
         features_vec : np.ndarray
             Input feature vector.
-        dummylabel : float
-            Predicted value.
-        label : float
+        dummylabel : int
+            Predicted label (0 or 1).
+        label : int
             True label.
 
         Returns
@@ -109,7 +108,6 @@ class Adaline(OneVsAll):
         np.ndarray
             Gradient vector for this sample.
         """
-
         return (label - dummylabel) * (-1) * features_vec
 
     def weights_vec_update(self):
@@ -121,36 +119,32 @@ class Adaline(OneVsAll):
         np.ndarray
             Updated weight vector.
         """
-        learning_rate = self.learning_rate
         weights_vec = self.weights_vec
+        learning_rate = self.learning_rate
         weights_vec[1:] -= learning_rate * self.gradient_vec
         weights_vec[0] += learning_rate * sum(self.labels_vector - self.dummylabel_vec)
         return weights_vec
 
     def weights_training(self):
         """
-        Train the Adaline model for the specified number of epochs.
+        Train the Logistic Regression model using gradient descent.
 
         Returns
         -------
         np.ndarray
             Final trained weight vector.
         """
-        error = 0
         step = 0
         while step <= self.epochs:
-            error = 0
             self.gradient_vec = np.zeros_like(self.gradient_vec)
             for i in range(self.samples_len):
-                labels_vector_element = self.labels_vector[i]
-                self.dummylabel_vec[i] = self.activation_func(self.features_matrix[i])
-                error += self.error_func (self.dummylabel_vec[i], labels_vector_element)
+                self.p_vec[i] = self.sigmoid(self.features_matrix[i], self.weights_vec)
+                self.dummylabel_vec[i] = self.activation_func(self.p_vec[i])
                 self.gradient_vec += self.gradient(self.features_matrix[i],
                                                    self.dummylabel_vec[i],
-                                                   labels_vector_element)
+                                                   self.labels_vector[i])
             self.weights_vec = self.weights_vec_update()
             step += 1
-        #print("Number of wrong label:", error)
         return self.weights_vec
 
     def train_prediction(self, trained_weights_vec):
@@ -167,9 +161,8 @@ class Adaline(OneVsAll):
         np.ndarray
             Array of predicted labels (0 or 1).
         """
-        return np.where(np.dot(trained_weights_vec[1:],
-                               self.features_matrix.T) + trained_weights_vec[0] >= 0,
-                               1, 0)
+        z = np.dot(trained_weights_vec[1:], self.features_matrix.T) + trained_weights_vec[0]
+        return (np.where(1 / (1 + np.e ** (-z)) > 0.5, 1, 0))
 
     def test_prediction(self, test_matrix, trained_weights_vec):
         """
@@ -187,9 +180,8 @@ class Adaline(OneVsAll):
         np.ndarray
             Array of predicted labels (0 or 1).
         """
-        return (np.where(np.dot(trained_weights_vec[1:],
-                                test_matrix.T) + trained_weights_vec[0] >= 0,
-                                1, 0))
+        z = np.dot(trained_weights_vec[1:], test_matrix.T) + trained_weights_vec[0]
+        return (np.where(1 / (1 + np.e ** (-z)) > 0.5, 1, 0))
 
     def train_score(self, trained_weights_vec):
         """
