@@ -22,10 +22,25 @@ The code uses the **Iris dataset** from `sklearn.datasets`, restricted to **peta
 
 ---
 
+## Dependencies
+ - Python 3.8+
+ - numpy
+ - pandas
+ - matplotlib
+ - scikit-learn (for dataset only)
+ - cvxopt (for quadratic programming in SVM)
+
+Install them with:
+```bash
+pip3 install numpy pandas matplotlib scikit-learn cvxopt
+```
+
+---
+
 ## Usage
 Clone the repository and run:
 
-```
+```bash
 python3 main.py
 ```
 
@@ -44,19 +59,23 @@ Example output:
 ```
 Misclassified Test Samples: 3 / 45
 ```
----
 
-## Dependencies
- - Python 3.8+
- - numpy
- - pandas
- - matplotlib
- - scikit-learn (for dataset only)
- - cvxopt (for quadratic programming in SVM)
+--- 
 
-Install them with:
+## Results
+### Peceptron
+![](./images/perceptron_5.png)
+
 ```
-pip3 install numpy pandas matplotlib scikit-learn cvxopt
+Misclassified Test Samples: 5  /  45
 ```
+
+### Adaline
+![](./images/adaline_1.png)
+
+```
+Misclassified Test Samples: 1  /  45
+```
+
 
 
