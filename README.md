@@ -77,5 +77,28 @@ Misclassified Test Samples: 5  /  45
 Misclassified Test Samples: 1  /  45
 ```
 
+### Linear regression
+![](./images/logistic_regression_2.png)
+
+```
+Misclassified Test Samples: 2  /  45
+```
+
+### Support vector machine 
+#### Linear 
+![](./images/svm_linear_1.png)
+
+```
+Misclassified Test Samples: 1  /  45
+```
+
+#### Gaussian
+![](./images/svm_gaussian_1.png)
+
+```
+Misclassified Test Samples: 1  /  45
+```
+
+### Neural network
 
 

@@ -36,7 +36,7 @@ class Perceptron(OneVsAll):
         Predictions from each class in one-vs-all classification.
     """
     def __init__(self, features_matrix, labels_vector,
-                 trained_weight_matrix, scores,
+                 trained_weights_matrix, scores,
                  learning_rate, epochs, length):
         """
         Initialize the perceptron with dataset and hyperparameters.
@@ -45,7 +45,7 @@ class Perceptron(OneVsAll):
         self.samples_len = features_matrix.shape[0]
         self.weights_vec = np.zeros(shape=features_matrix.shape[1] + 1)
         self.labels_vector = labels_vector
-        self.trained_weights_matrix = trained_weight_matrix
+        self.trained_weights_matrix = trained_weights_matrix
         self.trained_scores = scores
         self.learning_rate = learning_rate
         self.epochs = epochs
