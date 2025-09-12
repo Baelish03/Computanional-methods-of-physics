@@ -100,5 +100,8 @@ Misclassified Test Samples: 1  /  45
 ```
 
 ### Neural network
+![](./images/neural_network_1.png)
 
-
+```
+Misclassified Test Samples: 1  /  45
+```
